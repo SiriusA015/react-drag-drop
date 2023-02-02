@@ -9,6 +9,7 @@ export enum HOVER {
   LeftHover = "LeftHover",
   RightHover = "RightHover",
   AllHover = "AllHover",
+  LineHover = "LineHover",
 }
 class Rectangle {
   x: number;
@@ -38,6 +39,14 @@ class Rectangle {
     let bLB = this.isInRect(this.getLeftBottom(), target);
     let bRT = this.isInRect(this.getRightTop(), target);
     let bRB = this.isInRect(this.getRightBottom(), target);
+    let bLine =
+      ((this.x >= target.x && this.x <= target.x + target.w) ||
+        (this.x + this.w >= target.x &&
+          this.x + this.w <= target.x + target.w)) &&
+      target.y >= this.y &&
+      target.y <= this.y + this.h &&
+      target.y + target.h >= this.y &&
+      target.y + target.h <= this.y + this.h;
     if (bLT && bLB && bRT && bRB) {
       return HOVER.AllHover;
     } else if (bLT && bLB) {
@@ -56,6 +65,8 @@ class Rectangle {
       return HOVER.LBHover;
     } else if (bRB) {
       return HOVER.RBHover;
+    } else if (bLine) {
+      return HOVER.LineHover;
     } else {
       return null;
     }
@@ -67,6 +78,14 @@ class Rectangle {
       pt.x <= rect.x + rect.w &&
       rect.y <= pt.y &&
       pt.y <= rect.y + rect.h
+    );
+  }
+  intersectRect(target: Rectangle) {
+    return !(
+      target.x > this.x + this.w ||
+      target.x + target.w < this.x ||
+      target.y > this.y + this.h ||
+      target.y + target.h < this.y
     );
   }
 }

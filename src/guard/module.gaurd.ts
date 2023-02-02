@@ -1,4 +1,5 @@
-import { COLUMN_WIDTH, GUTTER_SIZE } from "../constants";
+import { prefetch } from "webpack";
+import { COLUMN_WIDTH, CONTAINER_WIDTH, GUTTER_SIZE } from "../constants";
 import { moduleW2LocalWidth, moduleX2LocalX } from "../helpers";
 import ModuleInterface from "../types/ModuleInterface";
 import { PointType, RectType } from "../types/rect.types";
@@ -11,11 +12,7 @@ export const makePixelY = (y: number) => {
   return Math.floor(y / GUTTER_SIZE) * GUTTER_SIZE;
 };
 
-export const validatePosition = (
-  id: number,
-  rect: RectType,
-  modules: ModuleInterface[]
-) => {
+const makeValidateRect = (rect: RectType) => {
   let newX = rect.x;
   let rm = rect.x % COLUMN_WIDTH;
 
@@ -30,7 +27,6 @@ export const validatePosition = (
   } else if (rm > GUTTER_SIZE) {
     newX = Math.floor(rect.x / COLUMN_WIDTH) * COLUMN_WIDTH + GUTTER_SIZE;
   }
-
   let newY = Math.floor(rect.y / GUTTER_SIZE) * GUTTER_SIZE;
   if (rect.y < GUTTER_SIZE) {
     newY = 0;
@@ -42,19 +38,43 @@ export const validatePosition = (
     w: moduleW2LocalWidth(rect.w),
     h: rect.h,
   };
-  console.log("test: ================================", modules);
+  return newRect;
+};
+
+export const validatePosition = (
+  id: number,
+  rect: RectType,
+  modules: ModuleInterface[],
+  preValue: PointType
+) => {
+  let newRect: RectType = makeValidateRect(rect);
+
   for (let i = 0; i < modules.length; i++) {
     if (i !== id - 1) {
       console.log(`hover test ids: (${id} --- > ${modules[i].id})`);
       let newCoord: any = preventHover(newRect, modules[i]);
       if (newCoord !== null) {
-        newX = newCoord.x;
-        newY = newCoord.y;
-        console.log("hover catch! ===  ", modules[i]);
+        newRect.x = newCoord.x;
+        newRect.y = newCoord.y;
+        if (
+          newCoord.y < GUTTER_SIZE ||
+          newCoord.x < GUTTER_SIZE ||
+          newCoord.x + newRect.w >= CONTAINER_WIDTH ||
+          isIntersect(
+            id,
+            i,
+            new Rectangle(newCoord.x, newCoord.y, newRect.w, newRect.h),
+            modules
+          )
+        ) {
+          newRect.x = preValue.x;
+          newRect.y =
+            Math.floor(preValue.y / GUTTER_SIZE) * GUTTER_SIZE - GUTTER_SIZE;
+        }
       }
     }
   }
-  return { newX, newY };
+  return { newX: newRect.x, newY: newRect.y };
 };
 
 export const preventHover = (module: RectType, target: ModuleInterface) => {
@@ -65,13 +85,12 @@ export const preventHover = (module: RectType, target: ModuleInterface) => {
     moduleW2LocalWidth(target.coord.w),
     target.coord.h
   );
-  console.log("source Rectangle: ", moduleRect);
-  console.log("target Rectangle: ", targetRect);
+
   let hover: any = moduleRect.isHover(targetRect);
-  console.log("hover status: === ", hover);
   if (!hover) {
     return null;
   }
+  console.log("hover status: === ", hover);
   let newCoord: PointType = { x: module.x, y: module.y };
   switch (hover) {
     case HOVER.AllHover:
@@ -90,23 +109,52 @@ export const preventHover = (module: RectType, target: ModuleInterface) => {
       newCoord.y = targetRect.getLeftBottom().y + GUTTER_SIZE;
       break;
     case HOVER.RBHover:
-      newCoord.x = targetRect.x - moduleRect.w - GUTTER_SIZE;
+      // newCoord.x = targetRect.x - moduleRect.w - GUTTER_SIZE;
       newCoord.y = targetRect.y - moduleRect.h - GUTTER_SIZE;
       break;
     case HOVER.RTHover:
-      newCoord.x = targetRect.x - moduleRect.w - GUTTER_SIZE;
+      // newCoord.x = targetRect.x - moduleRect.w - GUTTER_SIZE;
       newCoord.y = targetRect.getLeftBottom().y + GUTTER_SIZE;
       break;
     case HOVER.LBHover:
-      newCoord.x = targetRect.getRightTop().x + GUTTER_SIZE;
+      // newCoord.x = targetRect.getRightTop().x + GUTTER_SIZE;
       newCoord.y = targetRect.y - moduleRect.h - GUTTER_SIZE;
       break;
     case HOVER.LTHover:
-      newCoord.x = targetRect.getRightTop().x + GUTTER_SIZE;
+      // newCoord.x = targetRect.getRightTop().x + GUTTER_SIZE;
+      newCoord.y = targetRect.getLeftBottom().y + GUTTER_SIZE;
+      break;
+    case HOVER.LineHover:
+      // newCoord.x = targetRect.getRightTop().x + GUTTER_SIZE;
       newCoord.y = targetRect.getLeftBottom().y + GUTTER_SIZE;
       break;
     default:
       break;
   }
   return newCoord;
+};
+
+export const isIntersect = (
+  id: number,
+  targetID: number,
+  rect: Rectangle,
+  modules: ModuleInterface[]
+) => {
+  for (let i = 0; i < modules.length; i++) {
+    if (
+      i !== id - 1 &&
+      i !== targetID &&
+      rect.intersectRect(
+        new Rectangle(
+          moduleX2LocalX(modules[i].coord.x),
+          modules[i].coord.y,
+          moduleW2LocalWidth(modules[i].coord.w),
+          modules[i].coord.h
+        )
+      )
+    ) {
+      return true;
+    }
+  }
+  return false;
 };

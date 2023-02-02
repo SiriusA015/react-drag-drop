@@ -4,3 +4,7 @@ export interface RectType {
   w: number;
   h: number;
 }
+export interface PointType {
+  x: number;
+  y: number;
+}

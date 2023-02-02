@@ -6,10 +6,7 @@ import { useRafLoop, useStartTyping } from "react-use";
 import ModuleInterface from "../types/ModuleInterface";
 import { moduleW2LocalWidth, moduleX2LocalX, moduleY2LocalY } from "../helpers";
 import { validatePosition } from "../guard/module.gaurd";
-import useGetHeight from "../hooks/useGetHeight";
 import { GUTTER_SIZE } from "../constants";
-import { initModule } from "../data";
-import { ModuleHookType } from "../types/module-hook.type";
 
 type ModuleProps = {
   data: ModuleInterface;
@@ -46,10 +43,14 @@ const Module = (props: ModuleProps) => {
     // Update new position of the module
     let y0 = initialPosition.current.top + movement.y;
     let x0 = initialPosition.current.left + movement.x;
-    const { newX, newY } = validatePosition({ x: x0, y: y0, w: w, h: h });
+    const { newX, newY } = validatePosition(
+      id,
+      { x: x0, y: y0, w: w, h: h },
+      modules
+    );
     let temp = [...modules];
-    temp[id].coord.x = newX;
-    temp[id].coord.y = newY;
+    temp[id - 1].coord.x = newX;
+    temp[id - 1].coord.y = newY;
     setModules(temp);
 
     setPosition({

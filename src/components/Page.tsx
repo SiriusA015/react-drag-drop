@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Box } from "@mui/material";
 import { useDrop } from "react-dnd";
 import useState from "react-usestateref";
@@ -6,7 +6,6 @@ import Grid from "./Grid";
 import Module from "./Module";
 import { GUTTER_SIZE } from "../constants";
 import { initModule } from "../data";
-import useGetHeight from "../hooks/useGetHeight";
 import ModuleInterface from "../types/ModuleInterface";
 import { makePixelY } from "../guard/module.gaurd";
 

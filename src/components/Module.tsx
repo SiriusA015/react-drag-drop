@@ -4,7 +4,12 @@ import { useDrag, useDrop, useDragDropManager } from "react-dnd";
 import { useRafLoop, useStartTyping } from "react-use";
 
 import ModuleInterface from "../types/ModuleInterface";
-import { moduleW2LocalWidth, moduleX2LocalX, moduleY2LocalY } from "../helpers";
+import {
+  localX2ModuleX,
+  moduleW2LocalWidth,
+  moduleX2LocalX,
+  moduleY2LocalY,
+} from "../helpers";
 import { validatePosition } from "../guard/module.gaurd";
 import { GUTTER_SIZE } from "../constants";
 
@@ -49,7 +54,7 @@ const Module = (props: ModuleProps) => {
       modules
     );
     let temp = [...modules];
-    temp[id - 1].coord.x = newX;
+    temp[id - 1].coord.x = localX2ModuleX(newX);
     temp[id - 1].coord.y = newY;
     setModules(temp);
 

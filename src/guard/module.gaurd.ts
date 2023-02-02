@@ -33,7 +33,7 @@ export const validatePosition = (
 
   let newY = Math.floor(rect.y / GUTTER_SIZE) * GUTTER_SIZE;
   if (rect.y < GUTTER_SIZE) {
-    newY = GUTTER_SIZE;
+    newY = 0;
   }
 
   let newRect: RectType = {
@@ -42,12 +42,16 @@ export const validatePosition = (
     w: moduleW2LocalWidth(rect.w),
     h: rect.h,
   };
-  for (let i = 0; i < modules.length && i != id - 1; i++) {
-    let newCoord: any = preventHover(newRect, modules[i]);
-    if (newCoord !== null) {
-      newX = newCoord.x;
-      newY = newCoord.y;
-      console.log("hover catch! ===  ", modules[i]);
+  console.log("test: ================================", modules);
+  for (let i = 0; i < modules.length; i++) {
+    if (i !== id - 1) {
+      console.log(`hover test ids: (${id} --- > ${modules[i].id})`);
+      let newCoord: any = preventHover(newRect, modules[i]);
+      if (newCoord !== null) {
+        newX = newCoord.x;
+        newY = newCoord.y;
+        console.log("hover catch! ===  ", modules[i]);
+      }
     }
   }
   return { newX, newY };
@@ -74,28 +78,28 @@ export const preventHover = (module: RectType, target: ModuleInterface) => {
       newCoord.y = targetRect.getLeftBottom().y + GUTTER_SIZE;
       break;
     case HOVER.RightHover:
-      newCoord.x = targetRect.x - GUTTER_SIZE;
+      newCoord.x = targetRect.x - moduleRect.w - GUTTER_SIZE;
       break;
     case HOVER.LeftHover:
       newCoord.x = targetRect.getRightTop().x + GUTTER_SIZE;
       break;
     case HOVER.BottomHover:
-      newCoord.y = targetRect.y - GUTTER_SIZE;
+      newCoord.y = targetRect.y - moduleRect.h - GUTTER_SIZE;
       break;
     case HOVER.TopHover:
       newCoord.y = targetRect.getLeftBottom().y + GUTTER_SIZE;
       break;
     case HOVER.RBHover:
-      newCoord.x = targetRect.x - GUTTER_SIZE;
-      newCoord.y = targetRect.y - GUTTER_SIZE;
+      newCoord.x = targetRect.x - moduleRect.w - GUTTER_SIZE;
+      newCoord.y = targetRect.y - moduleRect.h - GUTTER_SIZE;
       break;
     case HOVER.RTHover:
-      newCoord.x = targetRect.x - GUTTER_SIZE;
+      newCoord.x = targetRect.x - moduleRect.w - GUTTER_SIZE;
       newCoord.y = targetRect.getLeftBottom().y + GUTTER_SIZE;
       break;
     case HOVER.LBHover:
       newCoord.x = targetRect.getRightTop().x + GUTTER_SIZE;
-      newCoord.y = targetRect.y - GUTTER_SIZE;
+      newCoord.y = targetRect.y - moduleRect.h - GUTTER_SIZE;
       break;
     case HOVER.LTHover:
       newCoord.x = targetRect.getRightTop().x + GUTTER_SIZE;

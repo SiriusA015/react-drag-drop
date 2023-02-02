@@ -21,7 +21,8 @@
     "react-dnd": "^14.0.4",
     "react-dnd-html5-backend": "^14.0.2",
     "react-dom": "^17.0.2",
-    "react-use": "^17.3.1"
+    "react-use": "^17.3.1",
+    "react-usestateref": "^1.0.8"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",

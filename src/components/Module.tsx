@@ -1,13 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Box } from "@mui/material";
-import { useDrag, useDragDropManager } from "react-dnd";
-import { useRafLoop } from "react-use";
+import { useDrag, useDrop, useDragDropManager } from "react-dnd";
+import { useRafLoop, useStartTyping } from "react-use";
 
 import ModuleInterface from "../types/ModuleInterface";
-import { moduleW2LocalWidth, moduleX2LocalX, moduleY2LocalY } from "../helpers";
+import {
+  localX2ModuleX,
+  moduleW2LocalWidth,
+  moduleX2LocalX,
+  moduleY2LocalY,
+} from "../helpers";
+import { validatePosition } from "../guard/module.gaurd";
+import { GUTTER_SIZE } from "../constants";
 
 type ModuleProps = {
   data: ModuleInterface;
+  modules: ModuleInterface[];
+  setModules: (modules: ModuleInterface[]) => void;
 };
 
 const Module = (props: ModuleProps) => {
@@ -16,6 +25,8 @@ const Module = (props: ModuleProps) => {
       id,
       coord: { x, y, w, h },
     },
+    modules,
+    setModules,
   } = props;
 
   // Transform x, y to left, top
@@ -26,8 +37,6 @@ const Module = (props: ModuleProps) => {
 
   const dndManager = useDragDropManager();
   const initialPosition = React.useRef<{ top: number; left: number }>();
-
-  // Use request animation frame to process dragging
   const [stop, start] = useRafLoop(() => {
     const movement = dndManager.getMonitor().getDifferenceFromInitialOffset();
 
@@ -36,14 +45,26 @@ const Module = (props: ModuleProps) => {
     }
 
     // Update new position of the module
+    let y0 = initialPosition.current.top + movement.y;
+    let x0 = initialPosition.current.left + movement.x;
+    const { newX, newY } = validatePosition(
+      id,
+      { x: x0, y: y0, w: w, h: h },
+      modules,
+      { x: initialPosition.current.left, y: initialPosition.current.top }
+    );
+    let temp = [...modules];
+    temp[id - 1].coord.x = localX2ModuleX(newX);
+    temp[id - 1].coord.y = newY;
+    setModules(temp);
     setPosition({
-      top: initialPosition.current.top + movement.y,
-      left: initialPosition.current.left + movement.x,
+      top: newY + GUTTER_SIZE,
+      left: newX,
     });
   }, false);
 
   // Wire the module to DnD drag system
-  const [, drag] = useDrag(
+  const [{ isDragging }, drag] = useDrag(
     () => ({
       type: "module",
       item: () => {
@@ -55,6 +76,9 @@ const Module = (props: ModuleProps) => {
         return { id };
       },
       end: stop,
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+      }),
     }),
     [top, left]
   );
@@ -65,9 +89,9 @@ const Module = (props: ModuleProps) => {
       display="flex"
       position="absolute"
       border={1}
-      borderColor="grey.500"
+      borderColor={isDragging ? "grey.100" : "grey.500"}
       padding="10px"
-      bgcolor="rgba(0, 0, 0, 0.5)"
+      bgcolor={isDragging ? "rgba(0, 0, 0, 0.2)" : "rgba(0, 0, 0, 0.5)"}
       top={top}
       left={left}
       width={moduleW2LocalWidth(w)}

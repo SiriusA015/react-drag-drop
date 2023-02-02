@@ -5,5 +5,5 @@ export default interface ModuleInterface {
     y: number;
     w: number;
     h: number;
-  }
+  };
 }

@@ -8,12 +8,13 @@ import { moduleW2LocalWidth, moduleX2LocalX, moduleY2LocalY } from "../helpers";
 import { validatePosition } from "../guard/module.gaurd";
 import useGetHeight from "../hooks/useGetHeight";
 import { GUTTER_SIZE } from "../constants";
-import { data } from "../data/modules";
+import { initModule } from "../data";
+import { ModuleHookType } from "../types/module-hook.type";
 
 type ModuleProps = {
   data: ModuleInterface;
-  realH: number;
-  setRealH: (h: number) => void;
+  modules: ModuleInterface[];
+  setModules: (modules: ModuleInterface[]) => void;
 };
 
 const Module = (props: ModuleProps) => {
@@ -22,11 +23,10 @@ const Module = (props: ModuleProps) => {
       id,
       coord: { x, y, w, h },
     },
-    realH,
-    setRealH,
+    modules,
+    setModules,
   } = props;
 
-  const ref = React.useRef(null);
   // Transform x, y to left, top
   const [{ top, left }, setPosition] = React.useState(() => ({
     top: moduleY2LocalY(y),
@@ -35,7 +35,7 @@ const Module = (props: ModuleProps) => {
 
   const dndManager = useDragDropManager();
   const initialPosition = React.useRef<{ top: number; left: number }>();
-  const { containerHeight } = useGetHeight();
+  // const { containerHeight } = useGetHeight();
   const [stop, start] = useRafLoop(() => {
     const movement = dndManager.getMonitor().getDifferenceFromInitialOffset();
 
@@ -46,17 +46,14 @@ const Module = (props: ModuleProps) => {
     // Update new position of the module
     let y0 = initialPosition.current.top + movement.y;
     let x0 = initialPosition.current.left + movement.x;
-    const { newX, newY } = validatePosition(
-      { x: x0, y: y0, w: w, h: h },
-      realH
-    );
-    console.log("comparison height: ", newY + h, realH);
-    if (newY + h > realH) {
-      setRealH(realH + GUTTER_SIZE);
-    }
+    const { newX, newY } = validatePosition({ x: x0, y: y0, w: w, h: h });
+    let temp = [...modules];
+    temp[id].coord.x = newX;
+    temp[id].coord.y = newY;
+    setModules(temp);
 
     setPosition({
-      top: newY,
+      top: newY + GUTTER_SIZE,
       left: newX,
     });
   }, false);
@@ -79,50 +76,9 @@ const Module = (props: ModuleProps) => {
     [top, left]
   );
 
-  const [{ handlerId }, drop] = useDrop({
-    accept: "module",
-    collect(monitor) {
-      return {
-        handlerId: monitor.getHandlerId(),
-      };
-    },
-    hover(item: any, monitor) {
-      if (!ref.current) {
-        return;
-      }
-      const dragIndex = item.id;
-      const hoverIndex = id;
-      // Don't replace items with themselves
-      if (dragIndex === hoverIndex) {
-        return;
-      }
-      // Determine rectangle on screen
-      const hoverBoundingRect = ref.current?.getBoundingClientRect();
-      // Get vertical middle
-      const hoverMiddleY =
-        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-      // Determine mouse position
-      const clientOffset: any = monitor.getClientOffset();
-      // Get pixels to the top
-      const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-      // Only perform the move when the mouse has crossed half of the items height
-      // When dragging downwards, only move when the cursor is below 50%
-      // When dragging upwards, only move when the cursor is above 50%
-      // Dragging downwards
-      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-        return;
-      }
-      // Dragging upwards
-      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-        return;
-      }
-    },
-  });
-
-  drag(drop(ref));
   return (
     <Box
-      ref={ref}
+      ref={drag}
       display="flex"
       position="absolute"
       border={1}

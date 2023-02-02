@@ -9,7 +9,7 @@ export const modulePostionGuard = (data: ModuleInterface) => {
   }
 };
 
-export const validatePosition = (rect: RectType, realH: number) => {
+export const validatePosition = (rect: RectType) => {
   let newX = rect.x;
   let rm = rect.x % COLUMN_WIDTH;
 
@@ -28,8 +28,13 @@ export const validatePosition = (rect: RectType, realH: number) => {
   let newY = Math.floor(rect.y / GUTTER_SIZE) * GUTTER_SIZE;
   if (rect.y < GUTTER_SIZE) {
     newY = GUTTER_SIZE;
-  } else if (newY + rect.h > realH - GUTTER_SIZE) {
-    // newY = newY - GUTTER_SIZE;
   }
   return { newX, newY };
+};
+
+export const makePixelY = (y: number) => {
+  if (y < GUTTER_SIZE) {
+    return GUTTER_SIZE;
+  }
+  return Math.floor(y / GUTTER_SIZE) * GUTTER_SIZE;
 };

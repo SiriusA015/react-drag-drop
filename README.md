@@ -1,8 +1,4 @@
-# Full-Stack / Frontend homework (Typescript, React, Drag & Drop)
-Welcome to the Digication work sample for Frontend developers (TypeScript, React, Drag & Drop)! This is our way to get some experience working with you and to gauge your skill in using TypeScript, React, and HTML DnD. For an experienced frontend developer, we estimate this project to take between 2 to 4 hours in total. We understand that you may have a busy schedule and can only work on this during your free time. For that reason, we hope you can complete it within a week. We encourage you to take the time you need in order to provide quality work that best reflects your skills.
-
-## Context
-We have implemented a basic Frontend React app in TypeScript to render and manage a grid layout system. This system contains of a 12 column grid where modules can be placed within the grid. We have provided a base code that includes this setup. The modules can currently move around freely via drag and drop. Your goal is to extend the algorithm, so a module can move within the layout container while matching the following requirements.
+# Frontend homework (Typescript, React, Drag & Drop)
 
 ## Definition
 1. **Layout container:** The 12 columns grid layout with 10px of gutter size. The container can contain multiple module objects.
@@ -30,14 +26,3 @@ Animation GIF
 
 [Video](https://vimeo.com/641041193/130e68ae3e)
 
-## Technical Requirements
-You have to use TypeScript 4.4 and React Hooks.
-For DnD, you can use HTML Drag and Drop API or any low-level DnD library (e.g [React DnD](https://react-dnd.github.io/react-dnd/)) but don't use any ready-to-use library such as [React Grid Layout](https://github.com/react-grid-layout/react-grid-layout).
-
-## Final Notes
-Some documentation and good unit tests will be much appreciated. Please make sure to apply common design patterns and best practices like you would do for any of your professional projects.
-
-Are you usually using additional tools in your projects? We can’t wait to hear about your best practices and why you think it's important to use them!
-
-## Encouragement
-Digication team members have worked through this work sample to make sure we are not asking for too much of your time. This shouldn't take you longer than 2 to 4 hours depending on your knowledge and the bells and whistles you want to add. We are looking forward to hearing from you!

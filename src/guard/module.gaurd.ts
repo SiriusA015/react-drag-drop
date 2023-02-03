@@ -18,13 +18,11 @@ const makeValidateRect = (rect: RectType) => {
 
   if (rect.x < 0) {
     newX = GUTTER_SIZE;
-  } else if (rect.x > 1024 - rect.w * COLUMN_WIDTH) {
-    newX = 1024 - rect.w * COLUMN_WIDTH;
+  } else if (rect.x > CONTAINER_WIDTH - rect.w * COLUMN_WIDTH) {
+    newX = CONTAINER_WIDTH - rect.w * COLUMN_WIDTH;
   } else if (rm === 0) {
     newX = rect.x + GUTTER_SIZE;
-  } else if (rm < GUTTER_SIZE) {
-    newX = Math.floor(rect.x / COLUMN_WIDTH) * COLUMN_WIDTH + GUTTER_SIZE;
-  } else if (rm > GUTTER_SIZE) {
+  } else {
     newX = Math.floor(rect.x / COLUMN_WIDTH) * COLUMN_WIDTH + GUTTER_SIZE;
   }
   let newY = Math.floor(rect.y / GUTTER_SIZE) * GUTTER_SIZE;
